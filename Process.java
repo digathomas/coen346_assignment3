@@ -9,8 +9,7 @@ public class Process extends Thread {
     VMM VMMObject;
     List<Commands> commandList = new ArrayList<Commands>();
 
-
-    Process(int arrival, int burst, int number, List<Commands> listOfCommands,VMM vmm) {
+    Process(int arrival, int burst, int number, List<Commands> listOfCommands, VMM vmm) {
         arrivalTime = arrival;
         burstTime = burst;
         processNumber = number;
@@ -30,8 +29,7 @@ public class Process extends Thread {
     public Boolean isFinished() {
         if (this.burstTime == 0) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -42,36 +40,34 @@ public class Process extends Thread {
     }
 
     public void run() {
-        //process shouldn't run if burstTime has reached 0
-      
-        //TODO: Last Access Time
-        //TODO: Clock -->remaining burst time
+        // process shouldn't run if burstTime has reached 0
+
+        // TODO: Last Access Time
+        // TODO: Clock -->remaining burst time
 
         while (burstTime > 0) {
-            //put this piece of code in appropriate place
-        for (Commands com: commandList) {
-            if (com.getVMMFunction().equals("Store")) {
-                //call memStore
-                VMMObject.memStore(com.getID(), com.getValue());
-                
-            }
-            else if (com.getVMMFunction().equals("Lookup")) {
-                //call memLookup
-                VMMObject.memLookup(com.getID());
+            // put this piece of code in appropriate place
+            for (Commands com : commandList) {
+                if (com.getVMMFunction().equals("Store")) {
+                    // call memStore
+                    VMMObject.memStore(com.getID(), com.getValue());
 
+                } else if (com.getVMMFunction().equals("Lookup")) {
+                    // call memLookup
+                    VMMObject.memLookup(com.getID());
+
+                } else if (com.getVMMFunction().equals("Release")) {
+                    // call memFree
+                    VMMObject.memFree(com.getID());
+                } else {
+                    System.out.println("Invalid command.");
+                    return;
+                }
+
+                burstTime = burstTime - 1000;
             }
-            else if (com.getVMMFunction().equals("Release")) {
-                //call memFree
-                VMMObject.memFree(com.getID());
-            }
-            else {
-                System.out.println("Invalid command.");
-                return;
-            }
-            burstTime = burstTime - 1000;
-        }
 
         }
-        
+
     }
 }

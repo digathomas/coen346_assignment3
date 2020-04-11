@@ -4,11 +4,12 @@ public class Variable {
     int variableValue;
     int lastAccessTime;
 
-    Variable (String id, int val, int lat) {
+    Variable(String id, int val, int lat) {
         variableID = id;
-        variableValue=val;
-        lastAccessTime=lat;
+        variableValue = val;
+        lastAccessTime = lat;
     }
+
     public String getVariableId() {
         return this.variableID;
     }
@@ -19,13 +20,5 @@ public class Variable {
 
     public int getLastAccessTime() {
         return this.lastAccessTime;
-    }
-
-    public void setVariableId(String id) {
-        variableID=id;
-
-    }
-    public void setValue(int val) {
-        variableValue = val;
     }
 }

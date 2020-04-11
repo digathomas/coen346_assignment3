@@ -40,70 +40,43 @@ public class Scheduler extends Thread {
                 // take both processes off the list and add them to readyList
                 // start both of them
                 if (CPUAccess.availablePermits() <= 2) {
-                    if (processes.get(0).getArrival() == clock.getTime()) 
+                    if (processes.get(0).getArrival() == clock.getTime())
                         move(processes, ready);
-                        ready.add(processes.get(0));
-                        processes.remove(0);
-                        try {
-                            CPUAccess.acquire(1);
-                        } catch (InterruptedException e) {
+                    ready.add(processes.get(0));
+                    processes.remove(0);
+                    try {
+                        CPUAccess.acquire(1);
+                    } catch (InterruptedException e) {
 
-                            e.printStackTrace();
-                        }
-                        ready.get(0).start();
-
+                        e.printStackTrace();
                     }
-                    if (processes.get(0).getArrival() == clock.getTime()) {
-                        ready.add(processes.get(0));
-                        try {
-                            CPUAccess.acquire(1);
-                        } catch (InterruptedException e) {
+                    ready.get(0).start();
 
-                            e.printStackTrace();
-                        }
-                        ready.get(0).start();
-
-                    } else if (ready.get(0).getArrival() == clock.getTime()) {
-                        try {
-                            CPUAccess.acquire(1);
-                        } catch (InterruptedException e) {
-
-                            e.printStackTrace();
-                        }
-                        ready.get(0).start();
-
-                    }
-                } else if (!ready.isEmpty()) {
-                    // give this process the key and run?
-                    if (CPUAccess.availablePermits() <= 2) {
-                        if (ready.get(0).getBurstTime() == clock.getTime()) {
-                            try {
-                                CPUAccess.acquire(1);
-                            } catch (InterruptedException e) {
-
-                                e.printStackTrace();
-                            }
-                            ready.get(0).start();
-                        }
-                        if (ready.get(0).getBurstTime() == clock.getTime()) {
-                            try {
-                                CPUAccess.acquire(1);
-                            } catch (InterruptedException e) {
-
-                                e.printStackTrace();
-                            }
-                            ready.get(0).start();
-                        }
-                    }
-                } else {
-                    // the CPU is idle and the clock is incremented
-                    clock.increment();
                 }
-            }
-            // check if there are processes to resume
-            if (processes.isEmpty() && !ready.isEmpty()) {
-                if (ready.get(0).getBurstTime() == clock.getTime()) {
-                    if (CPUAccess.availablePermits() <= 2) {
+                if (processes.get(0).getArrival() == clock.getTime()) {
+                    ready.add(processes.get(0));
+                    try {
+                        CPUAccess.acquire(1);
+                    } catch (InterruptedException e) {
+
+                        e.printStackTrace();
+                    }
+                    ready.get(0).start();
+
+                } else if (ready.get(0).getArrival() == clock.getTime()) {
+                    try {
+                        CPUAccess.acquire(1);
+                    } catch (InterruptedException e) {
+
+                        e.printStackTrace();
+                    }
+                    ready.get(0).start();
+
+                }
+            } else if (!ready.isEmpty()) {
+                // give this process the key and run?
+                if (CPUAccess.availablePermits() <= 2) {
+                    if (ready.get(0).getBurstTime() == clock.getTime()) {
                         try {
                             CPUAccess.acquire(1);
                         } catch (InterruptedException e) {
@@ -111,18 +84,42 @@ public class Scheduler extends Thread {
                             e.printStackTrace();
                         }
                         ready.get(0).start();
-                    } else {
-                        while (CPUAccess.tryAcquire() == false)
-                            ; // busy wait if no semaphores available
+                    }
+                    if (ready.get(0).getBurstTime() == clock.getTime()) {
+                        try {
+                            CPUAccess.acquire(1);
+                        } catch (InterruptedException e) {
+
+                            e.printStackTrace();
+                        }
+                        ready.get(0).start();
                     }
                 }
-
-            }
-            if (ready.get(0).isFinished()) {
-                move(ready, terminated);
+            } else {
+                // the CPU is idle and the clock is incremented
+                clock.increment();
             }
         }
+        // check if there are processes to resume
+        if (processes.isEmpty() && !ready.isEmpty()) {
+            if (ready.get(0).getBurstTime() == clock.getTime()) {
+                if (CPUAccess.availablePermits() <= 2) {
+                    try {
+                        CPUAccess.acquire(1);
+                    } catch (InterruptedException e) {
 
+                        e.printStackTrace();
+                    }
+                    ready.get(0).start();
+                } else {
+                    while (CPUAccess.tryAcquire() == false)
+                        ; // busy wait if no semaphores available
+                }
+            }
+
+        }
+        if (ready.get(0).isFinished()) {
+            move(ready, terminated);
+        }
     }
-
 }
