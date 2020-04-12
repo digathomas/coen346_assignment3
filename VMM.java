@@ -57,6 +57,18 @@ public class VMM extends Thread {
                 return;
             }
             // check if it exists in vm.txt-->disk
+            else {
+                for (Variable var: diskSpace) {
+                    if (var.getVariableId().equals(a)) {
+                        diskSpace.remove(var);
+                    }
+                    else {
+                        System.out.println("Variable does not exist.");
+                    }
+                }
+            }
+
+            
 
         }
     }
@@ -67,21 +79,16 @@ public class VMM extends Thread {
         for (int i = 0; i < memoryArray.length; i++) {
             if (memoryArray[i] == null) {
                 memoryArray[i] = var;
-                return;
+                
             } else {
                 // write into vm.txt-->disk
-                for (Variable var2 : diskSpace) {
-                    if (var2.getVariableId().equals(varID)) {
-                        diskSpace.add(var);
-                    }
-
-                }
+                diskSpace.add(var);
 
             }
         }
 
     }
-
+    
     public void run() {
 
     }

@@ -44,6 +44,7 @@ public class Process extends Thread {
 
         // TODO: Last Access Time
         // TODO: Clock -->remaining burst time
+        // TODO: Update vm.txt everytime something is added/removed
 
         while (burstTime > 0) {
             // put this piece of code in appropriate place
@@ -61,7 +62,7 @@ public class Process extends Thread {
                     VMMObject.memFree(com.getID());
                 } else {
                     System.out.println("Invalid command.");
-                    return;
+                    //return;
                 }
 
                 burstTime = burstTime - 1000;
