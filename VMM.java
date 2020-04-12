@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-//import java.lang.String;
-
 public class VMM extends Thread {
 
     Variable[] memoryArray;
@@ -16,37 +14,49 @@ public class VMM extends Thread {
 
     public int memLookup(String a) {
 
+        //if variable exists in main memory, return value
         for (int i = 0; i < memoryArray.length; i++) {
             if (a.equals(memoryArray[i].getVariableId())) {
                 return memoryArray[i].getValue();
             }
         }
+        //check if variable exists in disk 
+        //1. check if spot is available in main memory
+  
         for (Variable var : diskSpace) {
-            if (var.getVariableId().equals(a)) {
-                for (int i = 0; i < memoryArray.length; i++) {
+            if (var.getVariableId().equals(a)) //if found look for space in memoryArray
+            {
+                
+                for (int i = 0; i < memoryArray.length; i++) 
+                {
                     if (memoryArray[i] == null) {
-                        memoryArray[i] = var;
-                        break; // or return ID?
-                    } else {
+                        memoryArray[i] = var;   //if there is space in main memory, insert variable
+                        diskSpace.remove(var);
+                        return memoryArray[i].getValue(); 
+                    } 
+    
+                }
+                        //if there is no available space in the array:
                         // swap with variable that has least access time
 
                         int minValue = memoryArray[0].getLastAccessTime();
-                        Variable temp;
+                        Variable temp = new Variable("",0,0);
 
                         for (int j = 0; j < memoryArray.length; j++) {
-                            if (memoryArray[i].getLastAccessTime() < minValue) {
-                                minValue = memoryArray[i].getLastAccessTime();
-                                temp = memoryArray[i];
+                            if (memoryArray[j].getLastAccessTime() < minValue) {
+                                minValue = j;         //store index of one with least access value
+                                temp = memoryArray[j];//temp is variable to be swapped out
                             }
                         }
-                        // SWAP
-                        // goes from list to array
 
-                    }
-                }
-            }
+                    //SWAP
+                     memoryArray[minValue]=var;//store found in mem[j]
+                     diskSpace.add(temp);//store old mem[j] in disk
+                     diskSpace.remove(var);//remove found
+                     return  memoryArray[minValue].getValue();
+                 }
         }
-        return -1;
+        return -1; //variable doesn't exist 
 
     }
 

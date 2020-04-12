@@ -11,7 +11,7 @@ public class OSVMM extends Thread {
 
         Scanner processesFile = new Scanner(new File("processes.txt"));
         Scanner memconfigFile = new Scanner(new File("memconfig.txt"));
-         Scanner commandsFile = new Scanner(new File("commands.txt"))
+         Scanner commandsFile = new Scanner(new File("commands.txt"));
         // Scanner virtualMemoryFile = new Scanner(new File("virtualMemory.txt"));
 
         // initialize variables
@@ -37,39 +37,48 @@ public class OSVMM extends Thread {
         // read commandsFile
         List<Commands> commandsList = new ArrayList<Commands>();
         while (commandsFile.hasNextLine()) {
-            if (commandsFile.next().equals("Store")) {
+            String[] command = commandsFile.nextLine().split(" ");
 
-                vmmFunction = commandsFile.next();
-                id = commandsFile.next();
-                String a = commandsFile.next();
-                value = Integer.parseInt(a);
-                Commands command = new Commands(vmmFunction, id, value);
-                commandsList.add(command);
-            } else if (commandsFile.next().equals("Lookup")) {
-                vmmFunction = commandsFile.next();
-                id = commandsFile.next();
-                Commands command = new Commands(vmmFunction, id);
-                commandsList.add(command);
+            if (command[0].equals("Store")) {
+                vmmFunction = command[0];
+                id = command[1];
+                value = Integer.parseInt(command[2]);
 
-            } else if (commandsFile.next().equals("Release")) {
+                Commands command1 = new Commands(vmmFunction, id, value);
+                commandsList.add(command1);
 
-                vmmFunction = commandsFile.next();
-                id = commandsFile.next();
-                Commands command = new Commands(vmmFunction, id);
-                commandsList.add(command);
+            } else if (command[0].equals("Lookup")) {
+                
+                vmmFunction = command[0];
+                id = command[1];
+                
+                Commands command2 = new Commands(vmmFunction, id);
+                commandsList.add(command2);
+
+            } else if (command[0].equals("Release")) {
+
+                
+                vmmFunction = command[0];
+                id = command[1];
+
+                Commands command3 = new Commands(vmmFunction, id);
+                commandsList.add(command3);
 
             } else {
                 System.out.println("Command not available.");
             }
 
         }
+        
 
         // Read processesFile
         Scheduler schedule = new Scheduler(processes, ready, clock1);
         VMM virtualMemory = new VMM(mainMemoryArray);
         while (processesFile.hasNextLine()) {
-            arrivalTime = processesFile.nextInt();
-            burstTime = processesFile.nextInt();
+            String[] array1 = processesFile.nextLine().split(" ");
+            
+            arrivalTime = Integer.parseInt(array1[0]);
+            burstTime = Integer.parseInt(array1[1]);
             processNumber += processNumber;
             Process pro = new Process(arrivalTime, burstTime, processNumber, commandsList, virtualMemory);
             processes.add(pro);
