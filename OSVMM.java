@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class OSVMM extends Thread {
 
@@ -23,6 +25,7 @@ public class OSVMM extends Thread {
         int value = 0;
         int startTime = 0;
         Clock clock1 = new Clock(startTime);
+        AtomicInteger key = new AtomicInteger(0); // if process key is set to 0, then it does not have one
 
         // create process lists
         List<Process> processes = new ArrayList<Process>();
@@ -57,7 +60,6 @@ public class OSVMM extends Thread {
 
             } else if (command[0].equals("Release")) {
 
-                
                 vmmFunction = command[0];
                 id = command[1];
 
@@ -76,11 +78,11 @@ public class OSVMM extends Thread {
         VMM virtualMemory = new VMM(mainMemoryArray);
         while (processesFile.hasNextLine()) {
             String[] array1 = processesFile.nextLine().split(" ");
-            
+
             arrivalTime = Integer.parseInt(array1[0]);
             burstTime = Integer.parseInt(array1[1]);
             processNumber += processNumber;
-            Process pro = new Process(arrivalTime, burstTime, processNumber, commandsList, virtualMemory);
+            Process pro = new Process(arrivalTime, burstTime, processNumber, commandsList, virtualMemory, key);
             processes.add(pro);
 
         }
@@ -95,6 +97,9 @@ public class OSVMM extends Thread {
             }
         });
 
+        for (Process pro: processes) {
+            System.out.println(pro.getArrival());
+        }
         // order?
         schedule.start();
         virtualMemory.start();

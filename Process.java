@@ -1,15 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Process extends Thread {
+    AtomicInteger keyAccess;
     int arrivalTime;
     int burstTime;
     int processNumber;
-    int key;
     VMM VMMObject;
     List<Commands> commandList = new ArrayList<Commands>();
-
-    Process(int arrival, int burst, int number, List<Commands> listOfCommands, VMM vmm) {
+    
+    //Pass AtomicInteger in Process constructor?
+    Process(int arrival, int burst, int number, List<Commands> listOfCommands, VMM vmm, AtomicInteger key) {
         arrivalTime = arrival;
         burstTime = burst;
         processNumber = number;
@@ -66,6 +68,7 @@ public class Process extends Thread {
                 }
 
                 burstTime = burstTime - 1000;
+                keyAccess.getAndIncrement();
             }
 
         }
