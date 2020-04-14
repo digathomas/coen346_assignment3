@@ -40,9 +40,11 @@ public class Scheduler extends Thread {
                         if (cpuAccess.get() <= 2 && cpuAccess.get() > 0) {
                             cpuAccess.getAndDecrement();
                             move(readyList, runningList);
-                            runningList.get(0).start();
                             bufferedWriter.write("Clock: " + clock + ", " + "Process " + runningList.get(0).getProcessId() + ": Started");
                             bufferedWriter.newLine();
+                            bufferedWriter.write("Clock: " + clock + ", " + "Process " + runningList.get(0).getProcessId() + ": Resumed");
+                            bufferedWriter.newLine();
+                            runningList.get(0).start();
                         }
                     }
                     // look for second process in processList

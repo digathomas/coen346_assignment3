@@ -4,8 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Process extends Thread {
     AtomicInteger keyAccess;
-    int processId;
-    static int refProcessId = 0;
+    int processId;static refProcessId=0;
     int arrivalTime;
     int burstTime;
     VMM VMMObject;
@@ -14,7 +13,7 @@ public class Process extends Thread {
 
     // Pass AtomicInteger in Process constructor?
     Process(int arrivalTime, int burstTime, List<Commands> commandList, VMM vmmObject, AtomicInteger key) {
-        nextProcessId();
+        this.refProcessId++;
         this.processId = refProcessId;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
@@ -30,16 +29,13 @@ public class Process extends Thread {
         return this.arrivalTime;
     }
 
-    String getOutput() {
+    String getOutput
+    {
         return this.output;
     }
 
-    public void setArrival(int arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    public void nextProcessId() {
-        refProcessId++;
+    public void setArrival(int arrTime) {
+        arrivalTime = arrTime;
     }
 
     public Boolean isFinished() {
@@ -67,19 +63,19 @@ public class Process extends Thread {
             for (Commands command : commandList) {
                 if (command.getVMMFunction().equals("Store")) {
                     // call memStore
-                    VMMObject.memStore(command.getId(), command.getValue());
+                    VMMObject.memStore(command.getID(), command.getValue());
                     output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
                             + ", Value: " + command.getValue();
 
                 } else if (command.getVMMFunction().equals("Lookup")) {
                     // call memLookup
-                    VMMObject.memLookup(command.getId());
+                    VMMObject.memLookup(command.getID());
                     output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
                             + ", Value: " + command.getValue();
 
                 } else if (command.getVMMFunction().equals("Release")) {
                     // call memFree
-                    VMMObject.memFree(command.getId());
+                    VMMObject.memFree(command.getID());
                     output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId();
                 } else {
                     System.out.println("Invalid command.");
