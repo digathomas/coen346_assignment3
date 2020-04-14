@@ -4,24 +4,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Process extends Thread {
     AtomicInteger keyAccess;
+    int processId;
+    static refProcessId = 0;
     int arrivalTime;
     int burstTime;
-    int processNumber;
     VMM VMMObject;
     List<Commands> commandList = new ArrayList<Commands>();
     
     //Pass AtomicInteger in Process constructor?
-    Process(int arrival, int burst, int number, List<Commands> listOfCommands, VMM vmm, AtomicInteger key) {
-        arrivalTime = arrival;
-        burstTime = burst;
-        processNumber = number;
-        commandList = listOfCommands;
-        VMMObject = vmm;
+    Process(int arrivalTime, int burstTime, List<Commands> commandList, VMM vmmObject, AtomicInteger key) {
+        this.refProcessId++;
+        this.processId = refProcessId;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.commandList = commandList;
+        this.VMMObject = vmmObject;
     }
 
-    public int getArrival() {
-        return arrivalTime;
+    int getProcessId() {
+        return this.processId;
+    }
 
+    int getArrival() {
+        return this.arrivalTime;
     }
 
     public void setArrival(int arrTime) {
@@ -70,9 +75,7 @@ public class Process extends Thread {
                 burstTime = burstTime - 1000;
                 keyAccess.getAndIncrement();
             }
-
         }
-
     }
 }
  
