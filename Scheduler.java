@@ -1,156 +1,86 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.concurrent.Semaphore;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Scheduler extends Thread {
-
+    List<Process> processList = new ArrayList<Process>();
+    List<Process> readyList = new ArrayList<Process>();
+    List<Process> runningList = new ArrayList<Process>();
+    List<Process> terminatedList = new ArrayList<Process>();
+    // Semaphore CpuAccess = new Semaphore(2);
+    AtomicInteger cpuAccess = new AtomicInteger(2);
     Clock clock;
-    //Semaphore CPUAccess = new Semaphore(2);
-    AtomicInteger CPUAccess = new AtomicInteger(2);
-    List<Process> processes = new ArrayList<Process>();
-    List<Process> ready = new ArrayList<Process>();
-    List<Process> terminated = new ArrayList<Process>();
 
-    Scheduler(List<Process> processList, List<Process> readyList, Clock clock1) {
-        processes = processList;
-        ready = readyList;
-        clock = clock1;
-
+    Scheduler(List<Process> processList, List<Process> readyList, Clock clock) {
+        this.processList = processList;
+        this.readyList = readyList;
+        this.clock = clock;
     }
 
-    public static void move(List<Process> departure, List<Process> destination) {
+    private static void move(List<Process> departure, List<Process> destination) {
         destination.add(departure.get(0));
         departure.remove(0);
     }
 
+
     public void run() {
-
-        // two semaphores for CPU Access because two cores. If tryAcquire() returns
-        // true, then access CPU, else busy wait
-        // release() semaphore once CPU time is over and busy wait
-        // if burstTime = 0, send process to terminatedList
-
-        // TODO: Create busy wait loops, assign semaphore to processes
-        while (!processes.isEmpty() || !ready.isEmpty()) {
-            if (!processes.isEmpty()) {
-                if (processes.get(0).getArrival() == clock.getTime()) {
-                    move(processes, ready);
-                    if (CPUAccess.get() <= 2 && CPUAccess.get() > 0) {
-                    CPUAccess.getAndDecrement();
-                    ready.get(0).start();
+        try {
+            FileWriter writer = new FileWriter("output.txt", false);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            // TODO: Create busy wait loops, assign semaphore to processes
+            while (!(processList.isEmpty() && readyList.isEmpty())) {
+                if (!processList.isEmpty()) { // ISSUE: what if a process in processes is there but has a starting time
+                                              // really far, that's going to block the cpu for all other ready...
+                    if (processList.get(0).getArrival() == clock.getTime()) {
+                        move(processList, readyList);
+                        if (cpuAccess.get() <= 2 && cpuAccess.get() > 0) {
+                            cpuAccess.getAndDecrement();
+                            move(readyList, runningList);
+                            runningList.get(0).start();
+                            bufferedWriter.write("Clock: " + clock + ", " + "Process " + runningList.get(0).getProcessId() + ": Started");
+                            bufferedWriter.newLine();
+                        }
+                    }
+                    // look for second process in processList
+                    if (processList.get(0).getArrival() == clock.getTime()) {
+                        move(processList, readyList);
+                        if (cpuAccess.get() <= 2 && cpuAccess.get() > 0) {
+                            cpuAccess.getAndDecrement();
+                            move(readyList, runningList);
+                            runningList.get(0).start();
+                        } else if (!readyList.isEmpty()) { // check readyList for the second process if not in
+                                                           // processList
+                            if (cpuAccess.get() >= 2) {
+                                cpuAccess.getAndDecrement();
+                                move(readyList, runningList);
+                                runningList.get(0).start();
+                            } else {
+                                while (cpuAccess.get() == 0)
+                                    ;
+                            }
+                        }
+                    }
+                    if (!readyList.isEmpty()) {
+                        while (cpuAccess.get() >= 2) {
+                            cpuAccess.getAndDecrement();
+                            move(readyList, runningList);
+                            runningList.get(0).start();
+                        }
                     }
                 }
-                //look for second process in processList
-                if (processes.get(0).getArrival() == clock.getTime()) {
-                    move(processes, ready);
-                    if (CPUAccess.get() <= 2 && CPUAccess.get() > 0) {
-                        CPUAccess.getAndDecrement();
-                        ready.get(0).start();
-                    }
-                    else if (!ready.isEmpty()) { //check readyList for the second process if not in processList
-                        if (CPUAccess.get() >= 2) {
-                        CPUAccess.getAndDecrement();
-                        ready.get(0).start();
-                    }
-                    else {
-                        while(CPUAccess.get()==0);
-                    }
+                System.out.println("test");
+                if (!runningList.isEmpty()) {
+                    bufferedWriter.write("Clock: " + clock + ", " + runningList.get(0).getOutput());
+                    bufferedWriter.newLine();
                 }
             }
-            if (!ready.isEmpty()) {
-                while (CPUAccess.get() >= 2) {
-                    CPUAccess.getAndDecrement();
-                    ready.get(0).start();
-            }
+            bufferedWriter.close(); //the while loop never finishes so nothing is printed
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-        // while (processes.size() > terminated.size() || ready.size() > terminated.size()) {
-
-        //     // if both lists aren't empty
-        //     if (!processes.isEmpty()) {
-
-        //         // take both processes off the list and add them to readyList
-        //         // start both of them
-        //         if (CPUAccess.availablePermits() <= 2) {
-        //             if (processes.get(0).getArrival() == clock.getTime())
-        //                 move(processes, ready);
-        //             try {
-        //                 CPUAccess.acquire(1);
-        //             } catch (InterruptedException e) {
-        //                 e.printStackTrace();
-        //             }
-        //             ready.get(0).start();
-
-        //         }
-        //         if (processes.get(0).getArrival() == clock.getTime()) {
-        //             move(processes, ready);
-        //             try {
-        //                 CPUAccess.acquire(1);
-        //             } catch (InterruptedException e) {
-
-        //                 e.printStackTrace();
-        //             }
-        //             ready.get(0).start();
-
-        //         } else if (ready.get(0).getArrival() == clock.getTime()) {
-        //             try {
-        //                 CPUAccess.acquire(1);
-        //             } catch (InterruptedException e) {
-
-        //                 e.printStackTrace();
-        //             }
-        //             ready.get(0).start();
-
-        //         }
-        //     } else if (!ready.isEmpty()) {
-        //         // give this process the key and run?
-        //         if (CPUAccess.availablePermits() <= 2) {
-        //             if (ready.get(0).getBurstTime() == clock.getTime()) {
-        //                 try {
-        //                     CPUAccess.acquire(1);
-        //                 } catch (InterruptedException e) {
-
-        //                     e.printStackTrace();
-        //                 }
-        //                 ready.get(0).start();
-        //             }
-        //             if (ready.get(0).getBurstTime() == clock.getTime()) {
-        //                 try {
-        //                     CPUAccess.acquire(1);
-        //                 } catch (InterruptedException e) {
-
-        //                     e.printStackTrace();
-        //                 }
-        //                 ready.get(0).start();
-        //             }
-        //         }
-        //     } else {
-        //         // the CPU is idle and the clock is incremented
-        //         clock.increment();
-        //     }
-        // }
-        // // check if there are processes to resume
-        // if (processes.isEmpty() && !ready.isEmpty()) {
-        //     if (ready.get(0).getBurstTime() == clock.getTime()) {
-        //         if (CPUAccess.availablePermits() <= 2) {
-        //             try {
-        //                 CPUAccess.acquire(1);
-        //             } catch (InterruptedException e) {
-
-        //                 e.printStackTrace();
-        //             }
-        //             ready.get(0).start();
-        //         } else {
-        //             while (CPUAccess.tryAcquire() == false)
-        //                 ; // busy wait if no semaphores available
-        //         }
-        //     }
-
-        // }
-        // if (ready.get(0).isFinished()) {
-        //     move(ready, terminated);
-        // }
     }
 }

@@ -1,8 +1,8 @@
 public class Clock {
     int time;
 
-    Clock(int time1) {
-        time = time1;
+    Clock(int time) {
+        this.time = time;
     }
 
     public synchronized int getTime() {
@@ -10,8 +10,6 @@ public class Clock {
     }
 
     public synchronized void increment() {
-        time += time;
-
+        time += 1;
     }
-
 }
