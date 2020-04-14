@@ -18,7 +18,7 @@ public class Commands {
         return vmmFunction;
     }
 
-    public String getID() {
+    public String getId() {
         return id;
     }
 

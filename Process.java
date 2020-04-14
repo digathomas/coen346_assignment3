@@ -5,15 +5,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Process extends Thread {
     AtomicInteger keyAccess;
     int processId;
-    static refProcessId = 0;
+    static int refProcessId = 0;
     int arrivalTime;
     int burstTime;
     VMM VMMObject;
     List<Commands> commandList = new ArrayList<Commands>();
-    
-    //Pass AtomicInteger in Process constructor?
+    String output;
+
+    // Pass AtomicInteger in Process constructor?
     Process(int arrivalTime, int burstTime, List<Commands> commandList, VMM vmmObject, AtomicInteger key) {
-        this.refProcessId++;
+        nextProcessId();
         this.processId = refProcessId;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
@@ -29,8 +30,16 @@ public class Process extends Thread {
         return this.arrivalTime;
     }
 
-    public void setArrival(int arrTime) {
-        arrivalTime = arrTime;
+    String getOutput() {
+        return this.output;
+    }
+
+    public void setArrival(int arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public void nextProcessId() {
+        refProcessId++;
     }
 
     public Boolean isFinished() {
@@ -55,21 +64,26 @@ public class Process extends Thread {
 
         while (burstTime > 0) {
             // put this piece of code in appropriate place
-            for (Commands com : commandList) {
-                if (com.getVMMFunction().equals("Store")) {
+            for (Commands command : commandList) {
+                if (command.getVMMFunction().equals("Store")) {
                     // call memStore
-                    VMMObject.memStore(com.getID(), com.getValue());
+                    VMMObject.memStore(command.getId(), command.getValue());
+                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
+                            + ", Value: " + command.getValue();
 
-                } else if (com.getVMMFunction().equals("Lookup")) {
+                } else if (command.getVMMFunction().equals("Lookup")) {
                     // call memLookup
-                    VMMObject.memLookup(com.getID());
+                    VMMObject.memLookup(command.getId());
+                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
+                            + ", Value: " + command.getValue();
 
-                } else if (com.getVMMFunction().equals("Release")) {
+                } else if (command.getVMMFunction().equals("Release")) {
                     // call memFree
-                    VMMObject.memFree(com.getID());
+                    VMMObject.memFree(command.getId());
+                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId();
                 } else {
                     System.out.println("Invalid command.");
-                    //return;
+                    // return;
                 }
 
                 burstTime = burstTime - 1000;
@@ -78,4 +92,3 @@ public class Process extends Thread {
         }
     }
 }
- 
