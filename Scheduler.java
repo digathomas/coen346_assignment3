@@ -9,6 +9,7 @@ public class Scheduler extends Thread {
     BufferedWriter bufferedWriter = new BufferedWriter(writer);
     List<Process> processList = new ArrayList<Process>();
     List<Process> readyList = new ArrayList<Process>();
+    List<Process> runningList = new ArrayList<Process>();
     List<Process> terminatedList = new ArrayList<Process>();
     // Semaphore CpuAccess = new Semaphore(2);
     AtomicInteger cpuAccess = new AtomicInteger(2);
@@ -41,11 +42,13 @@ public class Scheduler extends Thread {
                     move(processList, readyList);
                     if (cpuAccess.get() <= 2 && cpuAccess.get() > 0) {
                         cpuAccess.getAndDecrement();
-                        readyList.get(0).start();
+                        move(readyList, runningList)
+                        runningList.get(0).start();
                     } else if (!readyList.isEmpty()) { // check readyList for the second process if not in processList
                         if (cpuAccess.get() >= 2) {
                             cpuAccess.getAndDecrement();
-                            readyList.get(0).start();
+                            move(readyList, runningList);
+                            runningList.get(0).start();
                         } else {
                             while (cpuAccess.get() == 0)
                                 ;
