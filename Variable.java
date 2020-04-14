@@ -1,17 +1,17 @@
 
 public class Variable {
-    String variableID;
+    String variableId;
     int variableValue;
     int lastAccessTime;
 
-    Variable(String id, int val, int lat) {
-        variableID = id;
-        variableValue = val;
-        lastAccessTime = lat;
+    Variable(String variableId, int variableValue, int lat) {
+        this.variableId = variableId;
+        this.variableValue = variableValue;
+        this.lastAccessTime = lastAccessTime;
     }
 
     public String getVariableId() {
-        return this.variableID;
+        return this.variableId;
     }
 
     public int getValue() {

@@ -6,9 +6,9 @@ public class VMM extends Thread {
     Variable[] memoryArray;
     List<Variable> diskSpace = new ArrayList<Variable>();
 
-    VMM(Variable[] memArray) {
+    VMM(Variable[] memoryArray) {
 
-        memoryArray = memArray;
+        this.memoryArray = memoryArray;
 
     }
 
@@ -102,5 +102,4 @@ public class VMM extends Thread {
     public void run() {
 
     }
-
 }

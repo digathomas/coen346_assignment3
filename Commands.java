@@ -3,25 +3,22 @@ public class Commands {
     String id;
     int value;
 
-
     Commands(String API, String identification, int number) {
         vmmFunction = API;
         id = identification;
         value=number;
-
     }
     
     Commands(String API, String identification) {
         vmmFunction = API;
         id = identification;
- 
     }
 
     public String getVMMFunction() {
         return vmmFunction;
     }
 
-    public String getID() {
+    public String getId() {
         return id;
     }
 
