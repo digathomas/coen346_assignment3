@@ -1,24 +1,28 @@
 
 public class Variable {
-    String variableId;
+    String variableID;
     int variableValue;
     int lastAccessTime;
-
-    Variable(String variableId, int variableValue, int lat) {
-        this.variableId = variableId;
-        this.variableValue = variableValue;
-        this.lastAccessTime = lastAccessTime;
+    //variable constructor, with its id, value and last access time
+    Variable(String id, int val, int lat) {
+        variableID = id;
+        variableValue = val;
+        lastAccessTime = lat;
     }
 
-    public String getVariableId() {
-        return this.variableId;
+    public String getVariableId() { //get variable id
+        return this.variableID;
     }
 
-    public int getValue() {
+    public int getValue() { //get value
         return this.variableValue;
     }
 
-    public int getLastAccessTime() {
+    public int getLastAccessTime() { //get last access time
         return this.lastAccessTime;
+    }
+    public void setLastAccessTime(int lat) { //set last access time
+        lastAccessTime =lat;
+
     }
 }

@@ -1,90 +1,103 @@
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Process extends Thread {
-    AtomicInteger keyAccess;
-    int processId;static refProcessId=0;
+
+    AtomicInteger CPUAccess;
     int arrivalTime;
     int burstTime;
-    VMM VMMObject;
+    int processNumber;
+    Clock clock;
     List<Commands> commandList = new ArrayList<Commands>();
-    String output;
+    int processTime;
+    int lock = 0;
+    Commands command;
+    VMM virtualMemory;
+    
+    //process constructor with proper assignments
+    Process(int arrival, int burst, int processNum,List<Commands> listOfCommands,VMM lock, AtomicInteger key, Clock clk) {
+        arrivalTime = arrival;
+        burstTime = burst;
+        processNumber = processNum;
+        commandList = listOfCommands;
+        virtualMemory=lock;
+        clock = clk;
+        CPUAccess=key;
+    
+     }
 
-    // Pass AtomicInteger in Process constructor?
-    Process(int arrivalTime, int burstTime, List<Commands> commandList, VMM vmmObject, AtomicInteger key) {
-        this.refProcessId++;
-        this.processId = refProcessId;
-        this.arrivalTime = arrivalTime;
-        this.burstTime = burstTime;
-        this.commandList = commandList;
-        this.VMMObject = vmmObject;
-    }
-
-    int getProcessId() {
-        return this.processId;
-    }
-
-    int getArrival() {
-        return this.arrivalTime;
-    }
-
-    String getOutput
-    {
-        return this.output;
-    }
-
-    public void setArrival(int arrTime) {
-        arrivalTime = arrTime;
-    }
-
-    public Boolean isFinished() {
-        if (this.burstTime == 0) {
-            return true;
-        } else {
-            return false;
-        }
+    public int getArrival() { //get the arrival time
+        return arrivalTime;
 
     }
 
-    public int getBurstTime() {
+    public int getBurstTime() { //get burst time
         return burstTime;
     }
 
+    public void setLock() { //set lock
+        lock=processNumber;
+    }
+    public int getProcessID() { //get process id
+        return processNumber;
+    }
+
+    public void setClock(int time) { //set the clock time with passed int
+         processTime = time;
+    }
+    
     public void run() {
         // process shouldn't run if burstTime has reached 0
+      
+        while (burstTime > 0) 
+        {
+            while(lock!=processNumber){};
+           
+            synchronized(commandList) {
+               
+             
+                if(!commandList.isEmpty()) {
 
-        // TODO: Last Access Time
-        // TODO: Clock -->remaining burst time
-        // TODO: Update vm.txt everytime something is added/removed
+                
+                    Commands command1 = commandList.remove(0);
+                    String function = command1.getVMMFunction();
+                    String variableid = command1.getID();
+                    int variableval = command1.getValue();
+                    //commandList.remove(0);
+                   
+                    while(virtualMemory.getLockValue() == 1);
+                  
+                    if (function.equals("Store")) {
+                   
+                        virtualMemory.whichCommand(command1);
+                        virtualMemory.thisProcess(this);
+                        virtualMemory.setLockValue(1);
+                 
+                    }
+                    else if (function.equals("Lookup")) {
+                        virtualMemory.whichCommand(command1);
+                        virtualMemory.thisProcess(this);
+                        virtualMemory.setLockValue(1);
+                    }
+                    else if (function.equals("Release")) {
+                        virtualMemory.whichCommand(command1);
+                        virtualMemory.thisProcess(this);
+                        virtualMemory.setLockValue(1);
+                    }
 
-        while (burstTime > 0) {
-            // put this piece of code in appropriate place
-            for (Commands command : commandList) {
-                if (command.getVMMFunction().equals("Store")) {
-                    // call memStore
-                    VMMObject.memStore(command.getID(), command.getValue());
-                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
-                            + ", Value: " + command.getValue();
-
-                } else if (command.getVMMFunction().equals("Lookup")) {
-                    // call memLookup
-                    VMMObject.memLookup(command.getID());
-                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId()
-                            + ", Value: " + command.getValue();
-
-                } else if (command.getVMMFunction().equals("Release")) {
-                    // call memFree
-                    VMMObject.memFree(command.getID());
-                    output = "Process " + processId + ", " + command.getVMMFunction() + ": Variable " + command.getId();
-                } else {
-                    System.out.println("Invalid command.");
-                    // return;
-                }
-
+                    while(virtualMemory.getLockValue() == 1);
+                    
                 burstTime = burstTime - 1000;
-                keyAccess.getAndIncrement();
-            }
+                lock=0;
+                CPUAccess.getAndIncrement();
+                System.out.println(CPUAccess.get());
+           
+             }
         }
+
     }
 }
+}
+ 
