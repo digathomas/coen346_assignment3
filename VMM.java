@@ -10,18 +10,17 @@ public class VMM extends Thread {
     List<Variable> diskSpace = new ArrayList<Variable>();
     Clock clock;
     AtomicInteger vmmlock = new AtomicInteger(0);
-    //List<Commands> commandList = new ArrayList<Commands>();
     Process pro;
     Commands com;
-
+    FileWriter fwriter;
     //vmm constructor 
-    VMM(Variable[] memArray, Clock clk) {
+    VMM(Variable[] memArray, Clock clk,FileWriter fw) {
 
         memoryArray = memArray;
        // commandList = listOfCommands;
         clock = clk;
         //command1 =  com;
-
+        fwriter=fw;
     }
     public synchronized int getLockValue() {
         return vmmlock.get();
@@ -76,7 +75,13 @@ public class VMM extends Thread {
                 }
 
                 // SWAP
-                System.out.println("Clock: "+ clock.getTime() + " Memory Manager, SWAP: Variable" + temp.getVariableId() + "with Variable: " + var.getVariableId());
+                try {
+                    fwriter.write("Clock: " + clock.getTime() + " Memory Manager, SWAP: Variable" + temp.getVariableId()
+                            + "with Variable: " + var.getVariableId());
+                } catch (IOException e) {
+                   
+                    e.printStackTrace();
+                }
                 memoryArray[minValue] = var;// store found in mem[j]
                 diskSpace.add(temp);// store old mem[j] in disk
                 diskSpace.remove(var);// remove found
@@ -101,11 +106,15 @@ public class VMM extends Thread {
                         var.setLastAccessTime(clock.getTime()); 
                         diskSpace.remove(var); //remove it from the list
                     } else {
-                        System.out.println("Variable does not exist."); //if in neither array nor disk, it doesnt exist
+                        try {
+                            fwriter.write("Variable does not exist.");
+                        } catch (IOException e) {
+                         
+                            e.printStackTrace();
+                        } // if in neither array nor disk, it doesnt exist
                     }
                 }
             }
-
         }
     }
 
@@ -136,22 +145,45 @@ public class VMM extends Thread {
          
             if (com.getVMMFunction().equals("Store")) {
                 // call memStore
-                System.out.println("Store is called");
+             
                 memStore(com.getID(), com.getValue());
-                System.out.println(" Clock: " + (clock.getTime()+500) + " Process: " + pro.getProcessID() + " Store: Variable: " + com.getID() + " Value: " + com.getValue());
+                try {
+                    fwriter.write(" Clock: " + (clock.getTime() + 500) + " Process: " + pro.getProcessID()
+                            + " Store: Variable: " + com.getID() + " Value: " + com.getValue());
+                } catch (IOException e) {
+                 
+                    e.printStackTrace();
+                }
 
 
             } else if (com.getVMMFunction().equals("Lookup")) {
                 // call memLookup
                 memLookup(com.getID());
-                System.out.println(" Clock: " + (clock.getTime()+500) + " Process: " + pro.getProcessID() + " Lookup: Variable: " + com.getID() + " Value: " + com.getValue());
+                try {
+                    fwriter.write(" Clock: " + (clock.getTime() + 500) + " Process: " + pro.getProcessID()
+                            + " Lookup: Variable: " + com.getID() + " Value: " + com.getValue());
+                } catch (IOException e) {
+                    
+                    e.printStackTrace();
+                }
 
             } else if (com.getVMMFunction().equals( "Release")) {
                 // call memFree
                 memFree(com.getID());
-                System.out.println(" Clock: " + (clock.getTime()+500) + " Process: " + pro.getProcessID() + " Release: Variable: " + com.getID());
+                try {
+                    fwriter.write(" Clock: " + (clock.getTime() + 500) + " Process: " + pro.getProcessID()
+                            + " Release: Variable: " + com.getID());
+                } catch (IOException e) {
+                  
+                    e.printStackTrace();
+                }
             } else {
-                System.out.println("Invalid command.");
+                try {
+                    fwriter.write("Invalid command.");
+                } catch (IOException e) {
+                   
+                    e.printStackTrace();
+                }
             
             }
            

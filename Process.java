@@ -1,4 +1,5 @@
 
+//import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,7 +16,6 @@ public class Process extends Thread {
     int lock = 0;
     Commands command;
     VMM virtualMemory;
-    
     //process constructor with proper assignments
     Process(int arrival, int burst, int processNum,List<Commands> listOfCommands,VMM lock, AtomicInteger key, Clock clk) {
         arrivalTime = arrival;
@@ -24,8 +24,7 @@ public class Process extends Thread {
         commandList = listOfCommands;
         virtualMemory=lock;
         clock = clk;
-        CPUAccess=key;
-    
+        CPUAccess=key;    
      }
 
     public int getArrival() { //get the arrival time
@@ -62,12 +61,12 @@ public class Process extends Thread {
 
                 
                     Commands command1 = commandList.remove(0);
-                    String function = command1.getVMMFunction();
-                    String variableid = command1.getID();
-                    int variableval = command1.getValue();
-                    //commandList.remove(0);
+                    String function = command1.getVMMFunction(); //get the function that will be passed to VMM
+                   // String variableid = command1.getID();
+                   // int variableval = command1.getValue();
+             
                    
-                    while(virtualMemory.getLockValue() == 1);
+                    while(virtualMemory.getLockValue() == 1); //lock to sync process and VMM
                   
                     if (function.equals("Store")) {
                    
@@ -89,10 +88,10 @@ public class Process extends Thread {
 
                     while(virtualMemory.getLockValue() == 1);
                     
-                burstTime = burstTime - 1000;
-                lock=0;
-                CPUAccess.getAndIncrement();
-                System.out.println(CPUAccess.get());
+                burstTime = burstTime - 1000; //decremement the burst time
+                lock=0; //set the lock to 0 as this process is not running anymore
+                CPUAccess.getAndIncrement(); //decrememnet the CPUAccess key
+               // System.out.println(CPUAccess.get());
            
              }
         }

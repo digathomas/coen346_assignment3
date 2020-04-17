@@ -1,0 +1,3 @@
+Variable ID:2Value:3LAT:3000
+Variable ID:3Value:7LAT:3000
+Variable ID:1Value:5LAT:1000
